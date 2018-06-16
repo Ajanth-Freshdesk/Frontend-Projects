@@ -1,0 +1,31 @@
+{
+  "name": "tictactoe",
+  "version": "1.0.0",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ajanth-Freshdesk/Frontend-Projects.git"
+  },
+  "keywords": [
+    "tictactoe"
+  ],
+  "author": "Ajanth",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ajanth-Freshdesk/Frontend-Projects/issues"
+  },
+  "homepage": "https://github.com/Ajanth-Freshdesk/Frontend-Projects#readme",
+  "description": "",
+  "dependencies": {
+    "connect": "^3.6.6",
+    "express": "^4.16.3",
+    "serve-static": "^1.13.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.5"
+  }
+}

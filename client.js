@@ -1,175 +1,76 @@
-var connection = new WebSocket('ws://localhost:9090'); 
-var name = "";
+var canPollLiveGames = true;
 
-var loginInput = document.querySelector('#loginInput'); 
-var loginBtn = document.querySelector('#loginBtn'); 
-
-var otherUsernameInput = document.querySelector('#otherUsernameInput'); 
-var connectToOtherUsernameBtn = document.querySelector('#connectToOtherUsernameBtn'); 
-var msgInput = document.querySelector('#msgInput'); 
-var sendMsgBtn = document.querySelector('#sendMsgBtn'); 
-var connectedUser, myConnection, dataChannel;
-  
-//when a user clicks the login button 
-loginBtn.addEventListener("click", function(event) { 
-   name = loginInput.value; 
-	
-   if(name.length > 0) { 
-      send({ 
-         type: "login", 
-         name: name 
-      }); 
-   } 
-}); 
- 
-//handle messages from the server 
-connection.onmessage = function (message) { 
-   console.log("Got message", message.data); 
-   var data = JSON.parse(message.data); 
-	
-   switch(data.type) { 
-      case "login": 
-         onLogin(data.success); 
-         break; 
-      case "offer": 
-         onOffer(data.offer, data.name); 
-         break; 
-      case "answer":
-         onAnswer(data.answer); 
-         break; 
-      case "candidate": 
-         onCandidate(data.candidate); 
-         break; 
-      default: 
-         break; 
-   } 
-}; 
- 
-//when a user logs in 
-function onLogin(success) { 
-
-   if (success === false) { 
-      alert("oops...try a different username"); 
-   } else { 
-      //creating our RTCPeerConnection object 
-      var configuration = { 
-         "iceServers": [{ "url": "stun:stun.1.google.com:19302" }] 
-      }; 
-		
-      myConnection = new webkitRTCPeerConnection(configuration, { 
-         optional: [{RtpDataChannels: true}] 
-      }); 
-		
-      console.log("RTCPeerConnection object was created"); 
-      console.log(myConnection); 
-  
-      //setup ice handling 
-      //when the browser finds an ice candidate we send it to another peer 
-      myConnection.onicecandidate = function (event) { 
-		
-         if (event.candidate) { 
-            send({ 
-               type: "candidate", 
-               candidate: event.candidate 
-            });
-         } 
-      }; 
-		
-      openDataChannel();
-		
-   } 
-};
-  
-connection.onopen = function () { 
-   console.log("Connected"); 
-}; 
- 
-connection.onerror = function (err) { 
-   console.log("Got error", err); 
-};
-  
-// Alias for sending messages in JSON format 
-function send(message) { 
-   if (connectedUser) { 
-      message.name = connectedUser; 
-   }
-	
-   connection.send(JSON.stringify(message)); 
-};
-
-
-//setup a peer connection with another user 
-connectToOtherUsernameBtn.addEventListener("click", function () {
-  
-   var otherUsername = otherUsernameInput.value;
-   connectedUser = otherUsername;
-	
-   if (otherUsername.length > 0) { 
-      //make an offer 
-      myConnection.createOffer(function (offer) { 
-         console.log(); 
-			
-         send({ 
-            type: "offer", 
-            offer: offer 
-         }); 
-			
-         myConnection.setLocalDescription(offer); 
-      }, function (error) { 
-         alert("An error has occurred."); 
-      }); 
-   } 
-});
-  
-//when somebody wants to call us 
-function onOffer(offer, name) { 
-   connectedUser = name; 
-   myConnection.setRemoteDescription(new RTCSessionDescription(offer));
-	
-   myConnection.createAnswer(function (answer) { 
-      myConnection.setLocalDescription(answer); 
-		
-      send({ 
-         type: "answer", 
-         answer: answer 
-      }); 
-		
-   }, function (error) { 
-      alert("oops...error"); 
-   }); 
+function initGame() {
+      pollLiveGames();
 }
 
-//when another user answers to our offer 
-function onAnswer(answer) { 
-   myConnection.setRemoteDescription(new RTCSessionDescription(answer)); 
-}
-  
-//when we got ice candidate from another user 
-function onCandidate(candidate) { 
-   myConnection.addIceCandidate(new RTCIceCandidate(candidate)); 
+function pollLiveGames() {
+      if(!canPollLiveGames) return;
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              console.log("Poll output : " + this.responseText);
+              populateLiveGames(JSON.parse(this.responseText));
+              setTimeout(pollLiveGames, 2500);
+            }
+          };
+      xhttp.open("GET", "/getLiveGames", true);
+      xhttp.send();
 }
 
-//creating data channel 
-function openDataChannel() { 
 
-   var dataChannelOptions = { 
-      reliable:true 
-   }; 
-	
-   dataChannel = myConnection.createDataChannel("myDataChannel", dataChannelOptions);
-	
-   dataChannel.onerror = function (error) { 
-      console.log("Error:", error); 
-   };
-	
-   dataChannel.onmessage = function (event) { 
-      console.log("Got message:", event.data); 
-   };  
+var existingGames = [];
+
+function populateLiveGames(gameList) {
+
+      var newKeys = gameList.map(element => ({value : element.token, name : element.playing}));
+      var existingKeys = existingGames.map(element => ({value : element.token, name : element.playing}));
+      var nogames = document.querySelector("#no-games");
+
+      if(gameList.length == 0) {
+            nogames.style.display = "block";
+      } else {
+            nogames.style.display = "none";
+      }
+
+
+      if(JSON.stringify(newKeys) == JSON.stringify(existingKeys)) { //Vulnerable because if order changes, I'm messed
+            return;
+      }
+
+      var ulTag = document.querySelector("#available-games");
+      ulTag.innerHTML = "";
+      
+
+
+      gameList.forEach((game) => {
+            var liHtml = "<li>";
+            var desc = '<div class="game-desc">'+game.gameDesc+'</div>';
+            var plCount = game.player2 ? '(2/2)' : '(1/2)';
+            var players = '<div class="game-players">'+ game.player1.name +' <span class="players">' + plCount + '</span></div>';
+            var clk = game.playing ? 'onWatchGame(\''+game.token + '\')' : 'onJoinGame(\''+game.token + '\')';
+            var actionStr = game.playing ? 'Watch' : 'Join';
+            var playingStr = "";
+            if(game.playing) {
+                  playingStr = "<div class='playing-icon' title='playing'></div>";
+            }
+            var action = '<div class="game-action"><button class="btn-fdesk btn-danger btn-sm" onclick="' + clk + '">'+actionStr+'</button>'+ playingStr +'</div>';   
+            
+            liHtml += desc + players + action + "</li>";
+            ulTag.insertAdjacentHTML("beforeend",liHtml);                 
+      });
+      
+      
+
+      existingGames = gameList;
 }
-  
-//when a user clicks the send message button 
-sendMsgBtn.addEventListener("click", function (event) { 
-   console.log("send message");
-   var val = msgInput.value; 
-   dataChannel.send(val); 
-});
+
+
+
+
+
+
+
+
+
+window.onload = initGame;

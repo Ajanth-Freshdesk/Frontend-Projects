@@ -1,0 +1,126 @@
+body {
+    background: #e2e1e0;
+    text-align: center;
+    font-family: National-Book,Helvetica,sans-serif;
+}
+
+.centered-div {
+    max-width: 1200px;
+    margin: auto;
+    text-align: center;
+    padding-top: 50px;
+}
+
+.btn-fdesk {
+    color: #fff!important;
+    font-size: .875rem;
+    vertical-align: bottom;
+    
+}
+ul#available-games {
+    padding:5px;
+}
+ul#available-games li:hover {
+    border-left: 4px solid #ff5969;
+} 
+
+ul#available-games li {
+    border-left: 4px solid transparent;
+    padding: 20px 30px;
+    -webkit-box-sizing: border-box;
+    cursor: pointer;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    box-shadow: 1px 1px 1px rgba(0,0,0,0), 0 1px 1px rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #888888;
+    border-bottom: 1px solid #CFCFCF;
+    transition: border-left .35s ease-in;
+}
+
+.btn-fdesk.btn-primary {
+    background: #25c16f;
+}
+
+.btn-fdesk.btn-danger {
+    background: #ff5969;
+}
+
+.btn-fdesk.btn-danger:hover {
+    background-color: #dc4d5b;
+}
+
+.btn-fdesk.btn-primary:hover {
+    background-color: #16a358;
+}
+
+.card {
+    background: #fff;
+    border-radius: 2px;
+    display: inline-block;
+    height: 500px;
+    max-height:550px;
+    margin: 1rem;
+    position: relative;
+    width: 500px;
+    overflow-y: auto;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+}
+  
+
+.btn-lg {
+    min-width: 160px;   
+    padding: 10px 30px;
+}
+
+.btn-sm {
+    min-width: 80px;   
+    padding: 5px 10px;
+}
+
+
+button {
+    font-family: Sailec-Bold,Helvetica,sans-serif;
+    cursor: pointer;
+    border: none;
+    outline: 0;
+    border-radius: 3px;
+    text-align: center;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: inline-block;
+    transition: background-color .25s ease-in;
+    white-space: normal;
+}
+
+
+.playing-icon {
+    width:15px;
+    height:15px;
+    border-radius:50%;
+    display:inline-block;
+    margin:5px;
+    background: #000000;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #0f9b0f, #189718);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #0f9b0f, #189718); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  
+  }
+
+
+ .banner {
+      padding: 5px 10px;
+      border-radius: 5px;
+      margin:5px;
+  }
+
+  .banner.warning {
+    background: #b8f5d4;
+    border: 1px solid #94e0b8;
+    margin: 5px;
+    color: #555;
+
+  }

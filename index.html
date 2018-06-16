@@ -1,25 +1,29 @@
 <html lang = "en"> 
    <head> 
       <meta charset = "utf-8" /> 
+
+      <link rel="stylesheet" href="css/mystyles.css"/>
    </head>
 	
    <body> 
       <div> 
-         <input type = "text" id = "loginInput" /> 
-         <button id = "loginBtn">Login</button> 
+        <div class="centered-div card">
+            <div class="first-div">
+                <button class="btn-fdesk btn-primary btn-lg">
+                    HOST A GAME
+                </button>
+                <div id="game-list">
+                    <ul id="available-games">
+                       
+                    </ul>
+                    <div class="banner warning" id="no-games" style="display:none">
+                        No Games are currently being played, Host one eh ?
+                    </div>
+                </div>
+            </div>
+        </div>
+         
       </div> 
-		
-      <div> 
-         <input type = "text" id = "otherUsernameInput" /> 
-         <button id = "connectToOtherUsernameBtn">Establish connection</button> 
-      </div> 
-		
-      <div> 
-         <input type = "text" id = "msgInput" /> 
-         <button id = "sendMsgBtn">Send text message</button> 
-      </div> 
-		
-      <script src = "client.js"></script>
    </body>
-	
+   <script src ="client.js" stype="text/javascript"></script>
 </html>

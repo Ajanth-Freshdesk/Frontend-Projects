@@ -7,19 +7,76 @@
 	
    <body> 
       <div> 
-        <div class="centered-div card">
-            <div class="first-div">
-                <button class="btn-fdesk btn-primary btn-lg">
-                    HOST A GAME
-                </button>
-                <div id="game-list">
-                    <ul id="available-games">
-                       
-                    </ul>
-                    <div class="banner warning" id="no-games" style="display:none">
-                        No Games are currently being played, Host one eh ?
+
+        <div class="card left-pane">
+                <div class="first-div">
+                    <button class="btn-fdesk btn-primary btn-lg" onclick="onHostGame()">
+                        HOST A GAME
+                    </button>
+                    <div id="create-game" style="display:none">
+                        <table cellpadding="5">
+                            <tr>
+                                <td>
+                                    <label>Player Name : </label>
+                                </td>
+                                <td>
+                                    <input type="text" class="input-text" id="player1"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Game Desc : </label>
+                                </td>
+                                <td>
+                                    <input type="text" class="input-text" id="desc"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="text-align:center">
+                                    <button class="btn-fdesk btn-danger btn-sm" onclick="hostGame()">
+                                        HOST
+                                    </button>
+                                </td>
+                            </tr>
+                            
+                        </table>
+                        
+                    </div>
+                    <div id="game-list">
+                        <div id="join-div" style="display:none">
+                            <labe>Join as :  </labe>
+                            <input type="text" class="input-text" id="join-as"/>
+                        </div>
+                        <ul id="available-games">
+                            
+                        </ul>
+                        
                     </div>
                 </div>
+        </div>
+        <div class="centered-div card">
+            <div class="banner warning" id="no-games" style="display:none">
+                No Games are currently being played, Host one eh ?
+            </div>
+            <div id="board">
+                <h3 id="game-desc"></h3>
+                <table class="game">
+                    <tr>
+                        <td class="cell" id="0" onclick="onmove(0,0,this)"></td>
+                        <td class="cell" id="1" onclick="onmove(0,1,this)"></td>
+                        <td class="cell" id="2" onclick="onmove(0,2,this)"></td>
+                    </tr>
+                    <tr>
+                        <td class="cell" id="3" onclick="onmove(1,0,this)"></td>
+                        <td class="cell" id="4" onclick="onmove(1,1,this)"></td>
+                        <td class="cell" id="5" onclick="onmove(1,2,this)"></td>
+                    </tr>
+                    <tr>
+                        <td class="cell" id="6" onclick="onmove(2,0,this)"></td>
+                        <td class="cell" id="7" onclick="onmove(2,1,this)"></td>
+                        <td class="cell" id="8" onclick="onmove(2,2,this)"></td>
+                    </tr>
+                </table>
             </div>
         </div>
          

@@ -132,15 +132,6 @@ function populateCurrentGame(newGame) {
             currentPlayerInfo.games[newGame.token] = newGame;
             currentPlayerInfo.activeGameToken = newGame.token;
             console.log("Received new Updates on current game : " + newGame.token);
-            var gameDesc = document.querySelector("#game-desc");
-            gameDesc.innerHTML = newGame.player1.name + " ("+newGame.player1.symbol+") vs ";
-
-            if(newGame.playing) {
-                  gameDesc.innerHTML += newGame.player2.name + " ("+newGame.player2.symbol + ")";
-            }
-
-            gameDesc.innerHTML += ", " + newGame.status.desc;
-
             var data = newGame.data;
             if(data) {
                   updateGridView(data);
@@ -163,12 +154,19 @@ function showGameMiscDetails(game){
       } else if(currentPlayerInfo.playingGames[game.token] && game.nextTurn == currentPlayerInfo.playingGames[game.token].symbol && game.status.code == -1) {
             gmTurn.innerText = "Your turn";
       } else if(game.status.code == -1) {
-            var pName = currentPlayerInfo.playingGames[game.token].playingAs;
-            gmTurn.innerText = (pName == game.player1.name ? game.player2.name : game.player1.name ) + "'s turn";
+            var player = currentPlayerInfo.playingGames[game.token].playingAs;
+            gmTurn.innerText = (player.name == game.player1.name ? game.player2.name : game.player1.name ) + "'s turn";
       }
 
       var gmStatus = document.querySelector(".game-header .game-status");
-      gmStatus.innerText = game.status.desc;
+      gmStatus.innerText = game.player1.name + "("+game.player1.symbol+") vs ";
+      if(game.playing) {
+            gmStatus.innerText += game.player2.name + "("+game.player2.symbol + ") ";
+      } else {
+            gmStatus.innerText += " ? ";
+      }
+
+      gmStatus.innerText += game.status.desc;
 }
 
 function updateGridView(data) {

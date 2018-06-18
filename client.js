@@ -167,6 +167,15 @@ function showGameMiscDetails(game){
       }
 
       gmStatus.innerText += game.status.desc;
+
+      var gameTable = document.querySelector("table.game");
+      if(game.status.code == 1 || game.status.code == 0) {
+            gameTable.style.background = "#26c26f";
+      } else if (game.status.code == -99) {
+            gameTable.style.background = "#fec108";
+      }
+      
+
 }
 
 function updateGridView(data) {

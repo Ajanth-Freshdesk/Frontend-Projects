@@ -120,6 +120,7 @@ table.game tr td {
 table.game {
     margin: 0 auto;
     border-collapse: collapse;
+    border-radius: 10px;
 }
 
 table.game tr td:first-child {
@@ -198,6 +199,8 @@ button {
     box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
   
   }
+
+
 
 
  .banner {

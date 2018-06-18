@@ -49,7 +49,7 @@ var isWin = function(matrix) {
         winner = matrix[2][0];
     }
 
-    if(count == 9) {
+    if(count == 9 && winner == -1) {
         winner = -99; //game drawn
     }
 

@@ -78,6 +78,12 @@ ul#available-games li {
     border-radius: 10px;
 }
 
+div#join-div {
+    padding:5px;
+    border:1px solid #ddd;
+    border-radius:3px;
+}
+
 table.game tr td {
     border: 2px solid rgb(0, 0, 0);
     height: 100px;

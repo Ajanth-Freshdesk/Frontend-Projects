@@ -6,6 +6,8 @@ function initGame() {
 
 var currentPlayerInfo = {};
 currentPlayerInfo.games = {};
+currentPlayerInfo.playingGames = {};
+var viewSymbols = { "1" : "X", "0" : "O", "-99" : ""};
 
 function pollLiveGames() {
       if(!canPollLiveGames) return;
@@ -16,10 +18,11 @@ function pollLiveGames() {
               populateLiveGames(JSON.parse(this.responseText));
               setTimeout(pollLiveGames, 2500);
             }
-          };
+      };
       xhttp.open("GET", "/getLiveGames", true);
       xhttp.send();
 }
+
 
 function onHostGame(){
       var div = document.querySelector("#create-game");
@@ -35,7 +38,7 @@ function hostGame(){
               console.log("Created game : " + this.responseText);
               document.querySelector("#create-game").style.display = "none";
               var newGame = JSON.parse(this.responseText);
-             
+              currentPlayerInfo.playingGames[newGame.token] = {playingAs : newGame.player1, symbol : newGame.player1.symbol};
               populateCurrentGame(newGame); 
               resetAndShowNewGame();             
                        
@@ -45,13 +48,56 @@ function hostGame(){
       xhttp.send();
 }
 
+function onJoinGame(gameId, ele) {
+
+      if(Object.keys(currentPlayerInfo.games).indexOf(gameId) >= 0) {
+            return;
+      }
+      var joinAsDiv = document.querySelector("#join-div");
+      
+      if(joinAsDiv) {
+            joinAsDiv.parentNode.removeChild(joinAsDiv);
+            var visiblility = joinAsDiv.style.display;
+      } 
+
+      joinAsDiv = document.createElement("div");
+      joinAsDiv.setAttribute("id","join-div");
+      joinAsDiv.innerHTML = '<labe>Join as :  </labe><input type="text" class="input-text" id="join-as"/>';
+      joinAsDiv.innerHTML += '<button class="btn-fdesk btn-danger btn-sm" onclick="joinGame()">Join</button>';
+      joinAsDiv.style.display = visiblility == "none" ? "block" : "none";
+      ele.parentNode.insertBefore(joinAsDiv, ele.nextSibling);
+      currentPlayerInfo.joiningGame = gameId;
+ }
+ 
+ function joinGame() {
+
+      var joinAs = document.querySelector("#join-as").value;
+
+      var joinAsDiv = document.querySelector("#join-div");
+      joinAsDiv.style.display = "none";
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              console.log("Joined game : " + this.responseText);
+              var newGame = JSON.parse(this.responseText);
+              currentPlayerInfo.playingGames[newGame.token] = {playingAs : newGame.player2, symbol : newGame.player2.symbol};
+              populateCurrentGame(newGame); 
+              resetAndShowNewGame();                  
+            }
+          };
+      xhttp.open("GET", "/joinGame?pName=" + joinAs + "&gameId=" + currentPlayerInfo.joiningGame, true);
+      xhttp.send();
+ }
+
 function onWatchGame(gameId) {
       currentPlayerInfo.activeGameToken = gameId;
       resetAndShowNewGame();
 }
 
 function resetAndShowNewGame() {
-      clearInterval(currentPlayerInfo.activeIntervalId);  // clear old interval, so old polling method stops
+      clearInterval(currentPlayerInfo.activeIntervalId);// clear old interval, so old polling method stops
+      currentPlayerInfo.games[currentPlayerInfo.activeGameToken] = null; // reset so that UI refreshes
       updateCurrentGame(); // to fix the 2.5sec latency in showing the first time
       currentPlayerInfo.activeIntervalId = setInterval(updateCurrentGame, 2500);  
 }
@@ -60,9 +106,14 @@ function updateCurrentGame() {
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-              console.log("updated game : " + this.responseText);
-              var newGame = JSON.parse(this.responseText);
-              populateCurrentGame(newGame);              
+                  console.log("updated game : " + this.responseText);
+                  var newGame = {};
+
+                  if(this.responseText && this.responseText.length > 0){
+                        newGame = JSON.parse(this.responseText);
+                  }
+
+                  populateCurrentGame(newGame);              
             }
           };
       xhttp.open("GET", "/onpollgame?gameId=" + currentPlayerInfo.activeGameToken, true);
@@ -72,6 +123,7 @@ function updateCurrentGame() {
 function populateCurrentGame(newGame) {
 
       console.log("begin populateCurrentGame");
+      if(!newGame || !newGame.token) return;
       var game = currentPlayerInfo.games[currentPlayerInfo.activeGameToken];
       if(game && game.token == newGame.token && JSON.stringify(game) == JSON.stringify(newGame)) {
             console.log("No Updates on current game : " + game.token);
@@ -89,8 +141,12 @@ function populateCurrentGame(newGame) {
             gameDesc.innerHTML += ", " + newGame.status.desc;
 
             var data = newGame.data;
-            if(newGame.playing) {
+            if(data) {
                   updateGridView(data);
+            }
+
+            if(newGame.status && newGame.status.code !== -1) { // game is over
+                  clearInterval(currentPlayerInfo.activeIntervalId);// clear interval, so we dont need to keep polling, since the game is over
             }
       } 
 }
@@ -100,7 +156,8 @@ function updateGridView(data) {
       for(var i =0; i < 3; i++) {
             var tds = trs[i].querySelectorAll("td");
             for(var j=0; j < 3; j++) {
-                  tds[j].innerText = data[i][j];
+                  tds[j].innerText = viewSymbols[data[i][j]];
+                  
             }
       }
 }
@@ -108,7 +165,35 @@ function updateGridView(data) {
 var existingGames = [];
 
 function onmove(yIndex, xIndex, ele) {
-      ele.innerText = "X";
+      var gm = currentPlayerInfo.games[currentPlayerInfo.activeGameToken];
+      if(gm && currentPlayerInfo.playingGames[gm.token] && gm.playing && gm.status.code == -1) {
+            // user is part of game and can play
+            if(gm.nextTurn == currentPlayerInfo.playingGames[gm.token].symbol) {
+                  // player's turn , grant move
+                  ele.innerText = gm.nextTurn;
+                  console.log("move granted ");
+                  var xhttp = new XMLHttpRequest();
+                  xhttp.onreadystatechange = function() {
+                        if (this.readyState == 4 && this.status == 200) {
+                              console.log("updated game : " + this.responseText);
+
+                              var newGame = {};
+                              if(this.responseText && this.responseText.length > 0) {
+                                    JSON.parse(this.responseText);
+                              }
+
+                              populateCurrentGame(newGame);              
+                        }
+                  };
+                  xhttp.open("POST", "/onmove?gameId=" + gm.token + "&yPoint=" + yIndex + "&xPoint=" + xIndex + "&playerSymbol=" + gm.nextTurn, true);
+                  xhttp.send();
+                  gm.nextTurn = "";
+                  return;
+            }
+      }
+
+      console.log("move not granted!!");
+      
 }
 
 function populateLiveGames(gameList) {
@@ -138,16 +223,14 @@ function populateLiveGames(gameList) {
             var desc = '<div class="game-desc">'+game.gameDesc+'</div>';
             var plCount = game.player2 ? '(2/2)' : '(1/2)';
             var players = '<div class="game-players">'+ game.player1.name +' <span class="players">' + plCount + '</span></div>';
-            var clk = game.playing ? 'onWatchGame(\''+game.token + '\')' : 'onJoinGame(\''+game.token + '\')';
+            var clk = game.playing ? 'onWatchGame(\''+game.token + '\')' : 'onJoinGame(\''+game.token + '\', this)';
             var playingStr = "";
             if(game.playing) {
                   playingStr = "<div class='playing-icon' title='playing'></div>"; // show the green circle
-                  liHtml = '<li onclick="'+ clk +'">'; // if already playing, then anyone clicking the li should be able to see
             }
             var action = '';
-            if(!game.playing) {
-                  action = '<div class="game-action"><button class="btn-fdesk btn-danger btn-sm" onclick="' + clk + '">Join</button>'+ playingStr +'</div>';  
-            }
+
+            liHtml = '<li onclick="'+ clk +'">'; 
 
             liHtml += desc + players + action + playingStr + "</li>";
             ulTag.insertAdjacentHTML("beforeend",liHtml);                 

@@ -26,7 +26,6 @@ app.get('/createGame', (req, res) => {
 });
 
 app.get('/getLiveGames', (req, res) => {
-    console.log("createGame : Request : watch : " + JSON.stringify(req.query));
     res.json(getLiveGames());
 });
 
@@ -38,8 +37,6 @@ app.post('/onmove', (req, res) => {
 });
 
 app.get('/onpollgame', (req, res) => {
-    console.log("Request : onpollgame : watch : " + JSON.stringify(req.query));
-
     res.json(pollGame(req.query.gameId));
 });
 
@@ -86,7 +83,6 @@ function onPlayerJoin(pName, gameId) {
 
     var gData = app.locals.gameData;
     var game = {};
-    var response = {};
 
     if(gData[gameId]) {
         game = gData[gameId];
@@ -99,9 +95,7 @@ function onPlayerJoin(pName, gameId) {
         game.status = {desc : 'Playing', code : -1 };
     } 
 
-    response.data = game;
-
-    return response;
+    return game;
 }
 
 function getLiveGames(){
@@ -109,7 +103,7 @@ function getLiveGames(){
     var resp = [];
     gameKeys.forEach((key) => {
         var game = app.locals.gameData[key];
-        resp.push({gameDesc : game.desc, player1 : game.player1, player2 : game.player2, token : key, playing : game.playing});
+        resp.push({gameDesc : game.desc, player1 : game.player1, player2 : game.player2, token : key, playing : game.playing, status : game.status});
     });
 
     return resp;

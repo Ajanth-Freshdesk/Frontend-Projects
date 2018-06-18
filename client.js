@@ -96,6 +96,7 @@ function onWatchGame(gameId) {
 }
 
 function resetAndShowNewGame() {
+
       clearInterval(currentPlayerInfo.activeIntervalId);// clear old interval, so old polling method stops
       currentPlayerInfo.games[currentPlayerInfo.activeGameToken] = null; // reset so that UI refreshes
       updateCurrentGame(); // to fix the 2.5sec latency in showing the first time
@@ -121,7 +122,7 @@ function updateCurrentGame() {
 }
 
 function populateCurrentGame(newGame) {
-
+      document.querySelector("#board").style.display = "block";
       console.log("begin populateCurrentGame");
       if(!newGame || !newGame.token) return;
       var game = currentPlayerInfo.games[currentPlayerInfo.activeGameToken];
@@ -144,11 +145,30 @@ function populateCurrentGame(newGame) {
             if(data) {
                   updateGridView(data);
             }
+            showGameMiscDetails(newGame);
 
-            if(newGame.status && newGame.status.code !== -1) { // game is over
+            if(newGame.status && newGame.status.code !== -1 && newGame.playing) { // game is over
                   clearInterval(currentPlayerInfo.activeIntervalId);// clear interval, so we dont need to keep polling, since the game is over
             }
       } 
+}
+
+function showGameMiscDetails(game){
+      var gmDesc = document.querySelector(".game-header .game-desc");
+      gmDesc.innerText = game.desc;
+      var gmTurn = document.querySelector(".game-header .game-turn");
+      gmTurn.innerText = "";
+      if(!currentPlayerInfo.playingGames[game.token] && game.status.code == -1) {
+            gmTurn.innerText = (game.nextTurn == game.player1.symbol ? game.player1.name : game.player2.name ) + "'s turn";
+      } else if(currentPlayerInfo.playingGames[game.token] && game.nextTurn == currentPlayerInfo.playingGames[game.token].symbol && game.status.code == -1) {
+            gmTurn.innerText = "Your turn";
+      } else if(game.status.code == -1) {
+            var pName = currentPlayerInfo.playingGames[game.token].playingAs;
+            gmTurn.innerText = (pName == game.player1.name ? game.player2.name : game.player1.name ) + "'s turn";
+      }
+
+      var gmStatus = document.querySelector(".game-header .game-status");
+      gmStatus.innerText = game.status.desc;
 }
 
 function updateGridView(data) {

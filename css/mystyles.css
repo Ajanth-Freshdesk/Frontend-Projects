@@ -74,8 +74,31 @@ ul#available-games li {
     background-color: rgba(255, 255, 255, .65);
     width: 300px;
     margin: 15px auto;
-    padding: 30px;
+    padding: 5px 30px;
     border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+
+.game-header {
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-size: 22px;
+    color: #444;
+}
+
+.game-header > div {
+    padding: 5px 10px;
+    border-bottom: 2px solid #ddd;
+}
+
+.game-header .game-desc {
+    background-color: #FFC107;
+    border-radius: 5px;
+}
+
+.game-header .game-turn , .game-header .game-status{
+    color : #ff5722;
 }
 
 div#join-div {
@@ -184,9 +207,10 @@ button {
   }
 
   .banner.warning {
-    background: #b8f5d4;
-    border: 1px solid #94e0b8;
+    background: #ffc822;
+    border: 1px solid #de9a37;
     margin: 5px;
-    color: #555;
+    margin-top: 100px;
+    color: #520a0a;
 
   }

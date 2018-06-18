@@ -53,8 +53,20 @@
             <div class="banner warning" id="no-games" style="display:none">
                 No Games are currently being played, Host one eh ?
             </div>
-            <div id="board">
+            
+            <div id="board" style="display:none">
                 <h3 id="game-desc"></h3>
+                <div class="game-header">
+                    <div class="game-desc">
+                        1v1 Ajanth's Game room
+                    </div>
+                    <div class="game-turn">
+                        Your turn
+                    </div>
+                    <div class="game-status">
+                        Playing
+                    </div>
+                </div>
                 <table class="game">
                     <tr>
                         <td class="cell" id="0" onclick="onmove(0,0,this)"></td>

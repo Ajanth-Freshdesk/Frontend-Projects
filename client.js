@@ -1,34 +1,37 @@
-var canPollLiveGames = true;
-
-function initGame() {
-      pollLiveGames();
-}
 
 var currentPlayerInfo = {};
 currentPlayerInfo.games = {};
 currentPlayerInfo.playingGames = {};
 var viewSymbols = { "1" : "X", "0" : "O", "-99" : ""};
 
+// onload show the list of available games 
+function initGame() {
+      pollLiveGames();
+      setInterval(pollLiveGames, 2500); // update live games every 2.5 seconds 
+}
+
+
+
 function pollLiveGames() {
-      if(!canPollLiveGames) return;
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
               console.log("Poll output : " + this.responseText);
               populateLiveGames(JSON.parse(this.responseText));
-              setTimeout(pollLiveGames, 2500);
             }
       };
       xhttp.open("GET", "/getLiveGames", true);
       xhttp.send();
 }
 
-
+// when user clicks on host game
 function onHostGame(){
       var div = document.querySelector("#create-game");
       div.style.display = div.style.display == "none" ? "block" : "none";
 }
 
+
+// on confirming host game
 function hostGame(){
       var pName = document.querySelector("#player1").value;
       var desc = document.querySelector("#desc").value;
@@ -48,6 +51,8 @@ function hostGame(){
       xhttp.send();
 }
 
+
+// when user joins an existing game - show the join game form
 function onJoinGame(gameId, ele) {
 
       if(Object.keys(currentPlayerInfo.games).indexOf(gameId) >= 0) {
@@ -69,6 +74,8 @@ function onJoinGame(gameId, ele) {
       currentPlayerInfo.joiningGame = gameId;
  }
  
+
+ // when user confirms join game
  function joinGame() {
 
       var joinAs = document.querySelector("#join-as").value;
@@ -90,13 +97,16 @@ function onJoinGame(gameId, ele) {
       xhttp.send();
  }
 
+
+ // when user clicks on any game to view it
 function onWatchGame(gameId) {
       currentPlayerInfo.activeGameToken = gameId;
       resetAndShowNewGame();
 }
 
-function resetAndShowNewGame() {
 
+// method that polls the current active game for user every 2.5 seconds
+function resetAndShowNewGame() {
       clearInterval(currentPlayerInfo.activeIntervalId);// clear old interval, so old polling method stops
       currentPlayerInfo.games[currentPlayerInfo.activeGameToken] = null; // reset so that UI refreshes
       updateCurrentGame(); // to fix the 2.5sec latency in showing the first time
@@ -128,7 +138,7 @@ function populateCurrentGame(newGame) {
       var game = currentPlayerInfo.games[currentPlayerInfo.activeGameToken];
       if(game && game.token == newGame.token && JSON.stringify(game) == JSON.stringify(newGame)) {
             console.log("No Updates on current game : " + game.token);
-      } else {
+      } else { // update view only if any change is found in the game
             currentPlayerInfo.games[newGame.token] = newGame;
             currentPlayerInfo.activeGameToken = newGame.token;
             console.log("Received new Updates on current game : " + newGame.token);
@@ -144,6 +154,8 @@ function populateCurrentGame(newGame) {
       } 
 }
 
+
+// show misc game info on top of the board
 function showGameMiscDetails(game){
       var gmDesc = document.querySelector(".game-header .game-desc");
       gmDesc.innerText = game.desc;
@@ -192,6 +204,8 @@ function updateGridView(data) {
 
 var existingGames = [];
 
+
+// when user makes a move, verify if he is allowed to move and send it to backend
 function onmove(yIndex, xIndex, ele) {
       var gm = currentPlayerInfo.games[currentPlayerInfo.activeGameToken];
       if(gm && currentPlayerInfo.playingGames[gm.token] && gm.playing && gm.status.code == -1) {
@@ -224,6 +238,8 @@ function onmove(yIndex, xIndex, ele) {
       
 }
 
+
+// method to populate live game list in left panel
 function populateLiveGames(gameList) {
 
       var newKeys = gameList.map(element => ({value : element.token, name : element.playing}));
@@ -236,7 +252,7 @@ function populateLiveGames(gameList) {
             nogames.style.display = "none";
       }
 
-
+      // update list only if any new change is detected
       if(JSON.stringify(newKeys) == JSON.stringify(existingKeys)) { //Vulnerable because if order changes, I'm messed
             return;
       }
